@@ -54,8 +54,8 @@ function M.setup(opts)
                 config.escape_sequences[mode] = nil
             else
                 local type = type(seq)
-                if type ~= 'string' and type ~= 'function' then
-                    vim.api.nvim_err_writeln('[Houdini] Escape sequence for "'..mode..'" has to be either a string or function! Use default value')
+                if type ~= 'string' and type ~= 'function' and seq ~= false then
+                    vim.api.nvim_err_writeln('[Houdini] Escape sequence for "'..mode..'" has to be either a string, a function or `false`! Use default value')
                     config.escape_sequences[mode] = defaults.escape_sequences[mode]
                 end
             end
