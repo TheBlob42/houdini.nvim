@@ -1,6 +1,5 @@
 local M = {}
 
-local modes = { i = true, R = true, t = true, c = true, }
 local ns = vim.api.nvim_create_namespace('houdini')
 local timer = vim.loop.new_timer()
 
@@ -50,8 +49,8 @@ function M.setup(opts)
 
         -- check for valid escape sequences
         for mode, seq in pairs(config.escape_sequences) do
-            if not modes[mode] then
-                vim.api.nvim_err_writeln('[Houdini] Found escape sequence for not supported mode: "'..mode..'"')
+            if not vim.tbl_contains({ 'i', 'R', 't', 'c' }, mode) then
+                vim.api.nvim_err_writeln('[Houdini] Found escape sequence for not supported mode (i,R,t,c): "'..mode..'"')
                 config.escape_sequences[mode] = nil
             else
                 local type = type(seq)
@@ -78,8 +77,8 @@ function M.setup(opts)
 
     vim.on_key(nil, ns)
     vim.on_key(function(char)
-        local mode = vim.fn.mode()
-        if modes[mode] then
+        local mode = vim.api.nvim_get_mode().mode
+        if M.config.escape_sequences[mode] then
             if trigger_char and combinations[trigger_char][char] then
                 local seq = M.config.escape_sequences[mode]
                 if type(seq) == 'function' then
