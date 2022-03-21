@@ -105,3 +105,5 @@ require('houdini').setup {
     },
 }
 ```
+
+Furthermore you can set a sequence to `false` to completely disable `houdini` for the specific mode
