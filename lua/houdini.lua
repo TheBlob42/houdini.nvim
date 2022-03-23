@@ -9,6 +9,7 @@ local trigger_char = nil
 local defaults = {
     mappings = { 'jk' },
     timeout = vim.o.timeoutlen,
+    check_modified = true,
     escape_sequences = {
         -- prevent change issue with `lightspeed.nvim`
         -- https://github.com/ggandor/lightspeed.nvim/issues/140
@@ -20,6 +21,22 @@ local defaults = {
 }
 
 M.config = defaults
+
+local unmodified_buf_content = nil
+---Save the current unmodified buffers content as a string for later comparisons
+---If the current buffer is modified then the storage variable is set to `nil`
+---Disable the whole comparison process by setting `check_modified = false`
+function M.save_buf_content_string()
+    if M.config.check_modified then
+        local modified = vim.api.nvim_buf_get_option(0, 'modified')
+        if not modified then
+            local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+            unmodified_buf_content = table.concat(lines, '')
+        else
+            unmodified_buf_content = nil
+        end
+    end
+end
 
 function M.setup(opts)
     local config = defaults
@@ -88,6 +105,23 @@ function M.setup(opts)
                 vim.api.nvim_feedkeys(seq, mode, true)
 
                 trigger_char = nil
+
+                if M.config.check_modified then
+                    -- check if the buffer content has changed, if not prevent modified state
+                    if unmodified_buf_content and (mode == 'i' or mode == 'R') then
+                        local buf = vim.api.nvim_get_current_buf()
+                        -- schedule needed for the escape sequence to be completed properly
+                        vim.schedule(function()
+                            local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+                            local content = table.concat(lines, '')
+                            if content == unmodified_buf_content then
+                                vim.api.nvim_buf_call(buf, function()
+                                    vim.cmd('silent! u')
+                                end)
+                            end
+                        end)
+                    end
+                end
             elseif combinations[char] then
                 trigger_char = char
                 timer:stop()
@@ -99,6 +133,13 @@ function M.setup(opts)
             end
         end
     end, ns)
+
+    vim.cmd [[
+        augroup houdini
+            autocmd!
+            autocmd InsertEnter * lua require('houdini').save_buf_content_string()
+        augroup END
+    ]]
 end
 
 return M

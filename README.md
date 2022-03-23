@@ -56,6 +56,7 @@ Call the `setup` function with your own configuration table to overwrite the def
 require('houdini').setup {
     mappings = { 'jk' },
     timeout = vim.o.timeoutlen,
+    check_modified = true,
     escape_sequences = {
         i = '<LEFT><DEL><LEFT><DEL><ESC>',
         R = '<BS><BS><ESC>',
@@ -74,6 +75,15 @@ A list of all two character mappings that you would like to use for "escaping"
 ### `timeout`
 
 The time (in ms) within both keys need to be pressed to trigger the escape
+
+### `check_modified`
+
+Neovim will always mark a buffer as `modified` after you've escaped insert mode via `houdini`. This is because inserting and deleting characters is considered a "change", even if you did not change any text. With this option enabled `houdini` will compare the changes made after leaving insert mode and suppress the `modified` status by Neovim, so that it works more like pressing `<ESC>`
+
+This feature will not intervene in the following cases:
+
+- the buffer was `modified` already before entering insert mode
+- you change some text while entering insert mode using for example `S`, `C` or `o`
 
 ### `escape_sequences`
 
