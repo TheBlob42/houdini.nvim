@@ -61,7 +61,7 @@ require('houdini').setup {
         i = '<LEFT><DEL><LEFT><DEL><ESC>',
         R = '<BS><BS><ESC>',
         t = '<BS><BS><C-\\><C-n>',
-        c = '<C-c>',
+        c = '<BS><BS><C-c>',
     },
 }
 ```
