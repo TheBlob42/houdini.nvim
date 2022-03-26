@@ -1,0 +1,9 @@
+houdini	houdini.txt	/*houdini*
+houdini-config-check-modified	houdini.txt	/*houdini-config-check-modified*
+houdini-config-escape-sequences	houdini.txt	/*houdini-config-escape-sequences*
+houdini-config-mappings	houdini.txt	/*houdini-config-mappings*
+houdini-config-timeout	houdini.txt	/*houdini-config-timeout*
+houdini-configuration	houdini.txt	/*houdini-configuration*
+houdini-installation	houdini.txt	/*houdini-installation*
+houdini.nvim	houdini.txt	/*houdini.nvim*
+houdini.txt	houdini.txt	/*houdini.txt*

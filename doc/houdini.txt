@@ -1,0 +1,142 @@
+*houdini.txt*
+
+Escape from insert, terminal & command mode without delay
+
+License:	GLP3
+Website:	https://github.com/TheBlob42/houdini.nvim
+
+==============================================================================
+INTRO                                                 *houdini* *houdini.nvim*
+
+If you are using a custom key mapping like `jk` to leave insert, terminal or
+command mode you probably have noticed that there is a slight "delay" after
+typing the first character. This is Neovim waiting for |timeoutlen| to see if
+you type the second character of your mapping or if it should insert the
+character instead.
+
+With `houdini` the characters will be inserted into the buffer right away.
+After each character the plugin checks if you have typed on of the configured
+escape sequences within the timeout. If this the case the corresponding
+sequence will be triggered, which by default will delete the inserted
+characters and escape the current mode. This way you will not experience any
+delay while typing.
+
+To check the already typed characters `houdini` uses the builtin
+|vim.on_key()| function.
+
+==============================================================================
+INSTALLATION                                            *houdini-installation*
+
+The plugin requires at least Neovim version >= 0.5
+
+Install with your favorite plugin manager and call the `setup` function.
+
+PACKER~
+(https://github.com/wbthomason/packer.nvim)
+>
+	use {
+        'theblob42/houdini.nvim',
+        config = function()
+            require('houdini').setup()
+        end
+    }
+<
+==============================================================================
+CONFIGURATION                                          *houdini-configuration*
+
+You need to call the `setup` function at least once, which will by default
+initialize `houdini` with its default settings:
+>
+    require('houdini').setup {
+        mappings = { 'jk' },
+        timeout = vim.o.timeoutlen,
+        check_modified = true,
+        escape_sequences = {
+            i = '<LEFT><DEL><LEFT><DEL><ESC>',
+            R = '<BS><BS><ESC>',
+            t = '<BS><BS><C-\\><C-n>',
+            c = '<BS><BS><C-c>',
+        },
+    }
+<
+By passing your own configuration table to the `setup` function you can
+override these defaults with your own preference:
+>
+	require('houdini').setup {
+		mappings = { 'fd' }
+	}
+<
+The `setup` function is idempotent, so you can call it multiple times with
+different configurations and it will always overwrite the previous settings
+(no restart required). This might be helpful when testing for example
+different timeout values or custom escape sequences.
+
+------------------------------------------------------------------------------
+MAPPINGS                                             *houdini-config-mappings*
+
+A list of two character mappings that you would like to use to trigger the
+"escaping".
+
+If you just want to "smash" two keys for escaping without having to care about
+the order of them, you simply have to add both combinations to the list:
+>
+    mappings = { 'fd', 'df' }
+<
+------------------------------------------------------------------------------
+TIMEOUT                                               *houdini-config-timeout*
+
+The time (in ms) in which both keys have to be pressed to trigger the escape.
+Defaults to |timeoutlen|.
+
+------------------------------------------------------------------------------
+CHECK MODIFIED                                 *houdini-config-check-modified*
+
+Neovim will always mark a buffer as |modified| after you've escaped insert
+mode via `houdini`. This is because inserting and deleting characters is
+considered a "change", even if you did not change any text (see |changetick|).
+With this option enabled `houdini` will compare the changes made after leaving
+insert mode and suppress the |modified| status by Neovim, so that it works
+more like pressing `<ESC>`.
+
+This feature will not do anything in the following cases:
+
+- the buffer was |modified| already before entering insert mode
+- you changed some text while entering insert mode using for example |S|, |C|
+  or |o|
+
+------------------------------------------------------------------------------
+ESCAPE SEQUENCES                             *houdini-config-escape-sequences*
+
+These are the escape sequences used to exit a certain mode.
+
+You can provide another string sequence or even a Lua function which receives
+both chars as parameters for even more customization:
+>
+	require('houdini').setup {
+		mappings = { 'jk', 'AA', 'II' },
+		escape_sequences = {
+			i = function(first, second)
+				local seq = first..second
+				local escape = '<LEFT><DEL><LEFT><DEL><ESC>'
+
+				if seq == 'AA' then
+					-- jump to the end of the line in insert mode
+					return escape..'A'
+				end
+
+				if seq == 'II' then
+					-- jump to the beginning of the line in insert mode
+					return escape..'I'
+				end
+
+				-- "regular" escape
+				return escape
+			end,
+		},
+	}
+<
+Note: By setting the escape sequence of a mode to `false` you're deactivating
+`houdini` for this mode completely.
+
+==============================================================================
+vim:tw=78:sw=4:ts=4:noet:ft=help:norl
