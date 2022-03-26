@@ -83,7 +83,7 @@ Neovim will always mark a buffer as `modified` after you've escaped insert mode 
 This feature will not intervene in the following cases:
 
 - the buffer was `modified` already before entering insert mode
-- you change some text while entering insert mode using for example `S`, `C` or `o`
+- you changed some text while entering insert mode using for example `S`, `C` or `o`
 
 ### `escape_sequences`
 
@@ -97,7 +97,7 @@ require('houdini').setup {
     escape_sequences = {
         i = function(first, second)
             local seq = first..second
-            local escape = '<LEFT><DEL><LEFT><DEL><ESC>A'
+            local escape = '<LEFT><DEL><LEFT><DEL><ESC>'
 
             if seq == 'AA' then
                 -- jump to the end of the line in insert mode
