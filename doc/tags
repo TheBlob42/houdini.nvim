@@ -5,5 +5,6 @@ houdini-config-mappings	houdini.txt	/*houdini-config-mappings*
 houdini-config-timeout	houdini.txt	/*houdini-config-timeout*
 houdini-configuration	houdini.txt	/*houdini-configuration*
 houdini-installation	houdini.txt	/*houdini-installation*
+houdini-troubleshooting	houdini.txt	/*houdini-troubleshooting*
 houdini.nvim	houdini.txt	/*houdini.nvim*
 houdini.txt	houdini.txt	/*houdini.txt*
