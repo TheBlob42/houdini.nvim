@@ -11,9 +11,7 @@ local defaults = {
     timeout = vim.o.timeoutlen,
     check_modified = true,
     escape_sequences = {
-        -- prevent change issue with `lightspeed.nvim`
-        -- https://github.com/ggandor/lightspeed.nvim/issues/140
-        i = '<LEFT><DEL><LEFT><DEL><ESC>',
+        i = '<BS><BS><ESC>',
         R = '<BS><BS><ESC>',
         t = '<BS><BS><C-\\><C-n>',
         c = '<BS><BS><C-c>',
