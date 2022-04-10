@@ -29,7 +29,7 @@ function M.save_buf_content_string()
         local modified = vim.api.nvim_buf_get_option(0, 'modified')
         if not modified then
             local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
-            unmodified_buf_content = table.concat(lines, '')
+            unmodified_buf_content = table.concat(lines, '\n')
         else
             unmodified_buf_content = nil
         end
@@ -111,7 +111,7 @@ function M.setup(opts)
                         -- schedule needed for the escape sequence to be completed properly
                         vim.schedule(function()
                             local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-                            local content = table.concat(lines, '')
+                            local content = table.concat(lines, '\n')
                             if content == unmodified_buf_content then
                                 vim.api.nvim_buf_call(buf, function()
                                     vim.cmd('silent! u')
