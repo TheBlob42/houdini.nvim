@@ -114,7 +114,13 @@ function M.setup(opts)
                             local content = table.concat(lines, '\n')
                             if content == unmodified_buf_content then
                                 vim.api.nvim_buf_call(buf, function()
+                                    local pos = vim.api.nvim_win_get_cursor(0)
+
                                     vim.cmd('silent! u')
+
+                                    -- save and restore cursor position in case the
+                                    -- escape sequence is used for moving the cursor
+                                    vim.api.nvim_win_set_cursor(0, pos)
                                 end)
                             end
                         end)
