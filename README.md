@@ -95,20 +95,16 @@ require('houdini').setup {
     escape_sequences = {
         i = function(first, second)
             local seq = first..second
-            local escape = '<BS><BS><ESC>'
 
             if seq == 'AA' then
                 -- jump to the end of the line in insert mode
-                return escape..'A'
+                return '<BS><BS><End>'
             end
-
             if seq == 'II' then
                 -- jump to the beginning of the line in insert mode
-                return escape..'I'
+                return '<BS><BS><Home>'
             end
-
-            -- "regular" escape
-            return escape
+            return '<BS><BS><ESC>'
         end,
     },
 }
