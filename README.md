@@ -114,6 +114,12 @@ Furthermore you can set a sequence to `false` to completely disable `houdini` fo
 
 ## Troubleshooting
 
+### General
+
+Whenever there is an error in a function used by `vim.on_key` Neovim will remove this function afterwards. So if `houdini` suddenly stops working it is most probably due to this. In this situation please check the `:messages` for error logs and open an issue, so we can further investigate it
+
+### Lightspeed
+
 There is a known issue with [lightspeed.nvim](https://github.com/ggandor/lightspeed.nvim) which blocks the first `<BS>` after a jump and changing text (see [here](https://github.com/ggandor/lightspeed.nvim/issues/140) fore more information). This might conflict with the default escape sequence for insert mode. Fortunately there is a simple workaround to mitigate this problem:
 
 ```lua
