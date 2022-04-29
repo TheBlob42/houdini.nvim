@@ -117,5 +117,15 @@ Furthermore you can set a sequence to `false` to completely disable `houdini` fo
 There is a known issue with [lightspeed.nvim](https://github.com/ggandor/lightspeed.nvim) which blocks the first `<BS>` after a jump and changing text (see [here](https://github.com/ggandor/lightspeed.nvim/issues/140) fore more information). This might conflict with the default escape sequence for insert mode. Fortunately there is a simple workaround to mitigate this problem:
 
 ```lua
-vim.cmd('autocmd User LightspeedSxLeave normal a')
+-- needs at least nvim version 0.7
+vim.api.nvim_create_autocmd('User', {
+    desc = 'fix for https://github.com/ggandor/lightspeed.nvim/issues/140',
+    pattern = 'LightspeedSxLeave',
+    callback = function()
+        local ignore = vim.tbl_contains({ 'terminal', 'prompt' }, vim.opt.buftype:get())
+        if vim.opt.modifiable:get() and not ignore then
+            vim.cmd('normal! a')
+        end
+    end,
+})
 ```
