@@ -120,7 +120,7 @@ function M.setup(opts)
 
                                     -- save and restore cursor position in case the
                                     -- escape sequence is used for moving the cursor
-                                    vim.api.nvim_win_set_cursor(0, pos)
+                                    pcall(vim.api.nvim_win_set_cursor, 0, pos)
                                 end)
                             end
                         end)
