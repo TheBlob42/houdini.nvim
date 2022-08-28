@@ -122,10 +122,18 @@ both chars as parameters for even more customization:
 					-- jump to the end of the line in insert mode
 					return '<BS><BS><End>'
 				end
+
 				if seq == 'II' then
 					-- jump to the beginning of the line in insert mode
 					return '<BS><BS><Home>'
 				end
+
+				-- you can also deactivate houdini for certain
+				-- occasions by simply returning an empty string
+				if vim.opt.filetype:get() == 'TelescopePrompt' then
+					return ''
+				end
+
 				return '<BS><BS><ESC>'
 			end,
 		},
