@@ -110,6 +110,9 @@ function M.setup(opts)
                         local buf = vim.api.nvim_get_current_buf()
                         -- schedule needed for the escape sequence to be completed properly
                         vim.schedule(function()
+                            if not vim.api.nvim_buf_is_valid(buf) then
+                                return
+                            end
                             local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
                             local content = table.concat(lines, '\n')
                             if content == unmodified_buf_content then
