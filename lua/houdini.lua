@@ -96,8 +96,8 @@ function M.setup(opts)
         if M.config.escape_sequences[mode] then
             if trigger_char and combinations[trigger_char][char] then
                 -- if the timer's due time is equal to the configured timeout its a sign that the escape sequence
-                -- was typed "automatically" (for example by `i_CTRL-A` or `i_CTRL-@`) and we should skip it
-                if timer and timer:get_due_in() == M.config.timeout then
+                -- was typed "automatically" (for example by `i_CTRL-A` or `i_CTRL-@`) and we should skip it (except its a macro)
+                if timer and timer:get_due_in() == M.config.timeout and vim.fn.reg_executing() == '' then
                     return
                 end
 
