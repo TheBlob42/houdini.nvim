@@ -63,16 +63,16 @@ function M.setup(opts)
         end
 
         -- check for valid escape sequences
+        local known_modes = vim.tbl_keys(defaults.escape_sequences)
         for mode, seq in pairs(config.escape_sequences) do
-            if not vim.tbl_contains({ 'i', 'R', 't', 'c' }, mode) then
-                vim.api.nvim_err_writeln('[Houdini] Found escape sequence for not supported mode (i,R,t,c): "'..mode..'"')
-                config.escape_sequences[mode] = nil
-            else
-                local type = type(seq)
-                if type ~= 'string' and type ~= 'function' and seq ~= false then
-                    vim.api.nvim_err_writeln('[Houdini] Escape sequence for "'..mode..'" has to be either a string, a function or `false`! Use default value')
-                    config.escape_sequences[mode] = defaults.escape_sequences[mode]
-                end
+            if not vim.tbl_contains(known_modes, mode) then
+                vim.api.nvim_echo({{ '[Houdini] Found escape sequence for not explicitly supported mode: "'..mode..'" (might not work)', 'WarningMsg' }}, true, {})
+            end
+
+            local type = type(seq)
+            if type ~= 'string' and type ~= 'function' and seq ~= false then
+                vim.api.nvim_err_writeln('[Houdini] Escape sequence for "'..mode..'" has to be either a string, a function or `false` (not '..type..')! Use default value (if present)')
+                config.escape_sequences[mode] = defaults.escape_sequences[mode]
             end
         end
     end
