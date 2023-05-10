@@ -1,6 +1,6 @@
 *houdini.txt*
 
-Escape from insert, terminal & command mode without delay
+Escape "everything" with a simple two character mapping & without delay
 
 License:	GLP3
 Website:	https://github.com/TheBlob42/houdini.nvim
@@ -51,12 +51,22 @@ initialize `houdini` with its default settings:
         mappings = { 'jk' },
         timeout = vim.o.timeoutlen,
         check_modified = true,
-        escape_sequences = {
-            i = '<BS><BS><ESC>',
-            R = '<BS><BS><ESC>',
-            t = '<BS><BS><C-\\><C-n>',
-            c = '<BS><BS><C-c>',
-        },
+		escape_sequences = {
+			['i']   = '<BS><BS><ESC>',
+			['ic']  = '<BS><BS><ESC>',
+			['ix']  = '<BS><BS><ESC>',
+			['R']   = '<BS><BS><ESC>',
+			['Rc']  = '<BS><BS><ESC>',
+			['Rx']  = '<BS><BS><ESC>',
+			['Rv']  = '<BS><BS><ESC>',
+			['Rvc'] = '<BS><BS><ESC>',
+			['Rvx'] = '<BS><BS><ESC>',
+			['r']   = '<ESC>',
+			['rm']  = '<ESC>',
+			['t']   = '<BS><BS><C-\\><C-n>',
+			['c']   = '<BS><BS><C-c>',
+			['cv']  = ('<BS>'):rep(100) .. 'vi<CR>'
+		},
     }
 <
 By passing your own configuration table to the `setup` function you can
@@ -108,6 +118,9 @@ This feature will not do anything in the following cases:
 ESCAPE SEQUENCES                             *houdini-config-escape-sequences*
 
 These are the escape sequences used to exit a certain mode.
+
+See |mode()| for a complete list of all the available modes.
+Remark that not all modes will work with the `houdini` plugin.
 
 You can provide another string sequence or even a Lua function which receives
 both chars as parameters for even more customization:
