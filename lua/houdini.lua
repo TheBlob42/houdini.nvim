@@ -123,8 +123,9 @@ function M.setup(opts)
                 trigger_char = nil
 
                 if M.config.check_modified then
-                    -- check if the buffer content has changed, if not prevent modified state
-                    if unmodified_buf_content and (mode == 'i' or mode == 'R') then
+                    -- check if the buffer content has changed, if not prevent modified state (only for "insert" modes)
+                    local insert_modes = { 'i', 'ic', 'ix', 'R', 'Rc', 'Rx', 'Rv', 'Rvc', 'Rvx' }
+                    if unmodified_buf_content and vim.tbl_contains(insert_modes, mode) then
                         local buf = vim.api.nvim_get_current_buf()
                         -- schedule needed for the escape sequence to be completed properly
                         vim.schedule(function()
