@@ -9,29 +9,45 @@ $$ |  $$ |\$$$$$$  |\$$$$$$  |\$$$$$$$ |$$ |$$ |  $$ |$$ |
 \__|  \__| \______/  \______/  \_______|\__|\__|  \__|\__|
 ```
 
-Use a simple two character mapping to escape insert, terminal & command mode
-
-If you are using a custom key mapping like `jk` to leave insert, terminal or command mode you probably have noticed that there is a slight "delay" after typing the first character. This is Neovim waiting for `vim.o.timeoutlen` to see if you type the second character of your mapping or if it should insert the character instead
-
-With delay (using a mapping like `inoremap jk <esc>`)
-
-![with delay](./assets/with_delay.gif)
-
-Without delay (using `houdini`)
-
-![without delay](./assets/without_delay.gif)
+Escape insert mode, terminal mode, the "hit-enter-prompt" and more with a simple two character mapping
 
 ## Motivation
 
-There are quite a few other plugins that also tackle this issue:
+If you're not using some sort of fancy, ergonomic or custom keyboard your escape key is probably not really close to your fingers while typing and therefore not easy to reach when you want to escape insert mode. A common [trick](https://vim.fandom.com/wiki/Avoid_the_escape_key#Mappings) is to use a simple mapping sequence like `jk` that is mapped to `<Esc>`
+
+```vimscript
+imap jk <Esc>
+```
+
+This comes with a slight "delay" after typing the first character as Neovim is waiting for `vim.o.timeoutlen` to check if you type the second character of the mapping or if it should insert the character instead
+
+![typing with delay](./assets/with_delay.gif)
+
+Using `houdini` removes the delay
+
+![typing without delay](./assets/without_delay.gif)
+
+**But why stop in insert mode?**
+
+Compared to other [alternatives](#alternatives) `houdini` does also work for other modes and cases that you might want to escape easily using the same mapping and without any visible typing delay
+
+- insert mode
+- terminal mode
+- command line mode
+- (virtual) replace mode
+- ex mode
+- the `more-prompt`
+- the `hit-enter-prompt`
+
+## Alternatives
+
+There are quite a few other plugins that also tackle the input delay:
 
 - [better-escape.vim](https://github.com/jdhao/better-escape.vim)
 - [better-escape.nvim](https://github.com/max397574/better-escape.nvim)
 - [vim-easyescape](https://github.com/zhou13/vim-easyescape)
 
-All of these are using the `InsertCharPre` autocommand event to implement their functionality, which only works for insert mode. For `houdini` we use the `vim.on_key` function of Neovim instead to also handle terminal and command mode properly. Furthermore the usage of escape functions allows for even more advance configurations, see [escape_sequences](#escape_sequences) for an example
-
-> If all you care about is insert mode escaping then any of the mentioned plugins will do the job just fine
+All of these are using the `InsertCharPre` autocommand event to implement their functionality, which only works for insert mode. For `houdini` we use the `vim.on_key` function of Neovim instead to also handle other modes properly. Furthermore the usage of escape functions allows for even more advance configurations, see [escape_sequences](#escape_sequences) for more examples
 
 ## Installation
 
@@ -58,10 +74,20 @@ require('houdini').setup {
     timeout = vim.o.timeoutlen,
     check_modified = true,
     escape_sequences = {
-        i = '<BS><BS><ESC>',
-        R = '<BS><BS><ESC>',
-        t = '<BS><BS><C-\\><C-n>',
-        c = '<BS><BS><C-c>',
+        ['i']   = '<BS><BS><ESC>',
+        ['ic']  = '<BS><BS><ESC>',
+        ['ix']  = '<BS><BS><ESC>',
+        ['R']   = '<BS><BS><ESC>',
+        ['Rc']  = '<BS><BS><ESC>',
+        ['Rx']  = '<BS><BS><ESC>',
+        ['Rv']  = '<BS><BS><ESC>',
+        ['Rvc'] = '<BS><BS><ESC>',
+        ['Rvx'] = '<BS><BS><ESC>',
+        ['r']   = '<ESC>',
+        ['rm']  = '<ESC>',
+        ['t']   = '<BS><BS><C-\\><C-n>',
+        ['c']   = '<BS><BS><C-c>',
+        ['cv']  = ('<BS>'):rep(100) .. 'vi<CR>'
     },
 }
 ```
@@ -85,15 +111,18 @@ This feature will not intervene in the following cases:
 
 ### `escape_sequences`
 
-The escape sequences which are used to escape a certain mode
+The escape sequences which are used to escape a certain mode or prompt
 
-You can provide another sequence as string or use a function for even more customization
+> Check `:help mode()` for a detailed explanation of all the available options  
+> See the [default configuration](#configuration) for all cases supported "out of the box"
+
+You can provide another sequence as a string or even use a function for more customization
 
 ```lua
 require('houdini').setup {
     mappings = { 'jk', 'AA', 'II' },
     escape_sequences = {
-        i = function(first, second)
+        ['i'] = function(first, second)
             local seq = first..second
 
             if seq == 'AA' then
@@ -124,11 +153,11 @@ Furthermore you can set a sequence to `false` to completely disable `houdini` fo
 
 ### General
 
-Whenever there is an error in a function used by `vim.on_key` Neovim will remove this function afterwards. So if `houdini` suddenly stops working it is most probably due to this. In this situation please check the `:messages` for error logs and open an issue, so we can further investigate it
+Whenever there is an error in a function used by `vim.on_key` Neovim will remove this function afterwards. So if `houdini` suddenly stops working it is most probably due to this. In this situation please check `:messages` for error logs and open an issue, so we can further investigate it
 
 ### Lightspeed
 
-There is a known issue with [lightspeed.nvim](https://github.com/ggandor/lightspeed.nvim) which blocks the first `<BS>` after a jump and changing text (see [here](https://github.com/ggandor/lightspeed.nvim/issues/140) fore more information). This might conflict with the default escape sequence for insert mode. Fortunately there is a simple workaround to mitigate this problem:
+There is a known issue with [lightspeed.nvim](https://github.com/ggandor/lightspeed.nvim) which blocks the first `<BS>` after a jump and changing text (see [here](https://github.com/ggandor/lightspeed.nvim/issues/140) fore more information). This might conflict with the default escape sequence for insert mode. Fortunately there is a simple workaround to mitigate this problem
 
 ```lua
 -- needs at least nvim version 0.7
