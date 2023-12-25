@@ -6,6 +6,22 @@ local timer = vim.loop.new_timer()
 local combinations = {}
 local last_char = ''
 
+local ignore_key = vim.api.nvim_replace_termcodes('<Ignore>', true, true, true)
+
+vim.api.nvim_create_autocmd('RecordingLeave', {
+    group = vim.api.nvim_create_augroup('HoudiniMacroAdaptions', {}),
+    pattern = '*',
+    callback = function()
+        local reg = vim.fn.reg_recording()
+        vim.schedule(function()
+            local reg_content = vim.fn.getreg(reg)
+            if reg_content and type(reg_content) == 'string' then
+                vim.fn.setreg(reg, reg_content:gsub('(.)' .. ignore_key, ignore_key .. '%1'))
+            end
+        end)
+    end
+})
+
 local defaults = {
     mappings = { 'jk' },
     timeout = vim.o.timeoutlen,
@@ -149,6 +165,10 @@ function M.setup(opts)
             elseif combinations[char] then
                 timer:stop()
                 timer:start(M.config.timeout, 0, function() end)
+            else
+                if vim.fn.reg_recording() ~= '' and combinations[last_char] and combinations[last_char][char] then
+                    vim.api.nvim_feedkeys(ignore_key, 't', true)
+                end
             end
 
             last_char = char
