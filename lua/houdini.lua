@@ -8,6 +8,8 @@ local last_char = ''
 
 local ignore_key = vim.api.nvim_replace_termcodes('<Ignore>', true, true, true)
 
+-- move the added `<Ignore>` key between the escape sequence chars
+-- during macro execution this will prevent triggering an escape
 vim.api.nvim_create_autocmd('RecordingLeave', {
     group = vim.api.nvim_create_augroup('HoudiniMacroAdaptions', {}),
     pattern = '*',
@@ -166,6 +168,7 @@ function M.setup(opts)
                 timer:stop()
                 timer:start(M.config.timeout, 0, function() end)
             else
+                -- add an extra `<Ignore>` key which is "moved between" the escape sequence chars after the macro recording finished
                 if vim.fn.reg_recording() ~= '' and combinations[last_char] and combinations[last_char][char] then
                     vim.api.nvim_feedkeys(ignore_key, 't', true)
                 end
