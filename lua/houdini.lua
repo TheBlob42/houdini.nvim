@@ -4,7 +4,7 @@ local ns = vim.api.nvim_create_namespace('houdini')
 local timer = vim.loop.new_timer()
 
 local combinations = {}
-local trigger_char = nil
+local last_char = ''
 
 local defaults = {
     mappings = { 'jk' },
@@ -106,7 +106,7 @@ function M.setup(opts)
     vim.on_key(function(char)
         local mode = vim.api.nvim_get_mode().mode
         if M.config.escape_sequences[mode] then
-            if trigger_char and combinations[trigger_char][char] then
+            if timer:get_due_in() > 0 and combinations[last_char] and combinations[last_char][char] then
                 -- if the timer's due time is equal to the configured timeout its a sign that the escape sequence
                 -- was typed "automatically" (for example by `i_CTRL-A` or `i_CTRL-@`) and we should skip it (except its a macro)
                 if timer and timer:get_due_in() == M.config.timeout and vim.fn.reg_executing() == '' then
@@ -115,12 +115,10 @@ function M.setup(opts)
 
                 local seq = M.config.escape_sequences[mode]
                 if type(seq) == 'function' then
-                    seq = seq(trigger_char, char)
+                    seq = seq(last_char, char)
                 end
                 seq = vim.api.nvim_replace_termcodes(seq, true, true, true)
                 vim.api.nvim_feedkeys(seq, mode, true)
-
-                trigger_char = nil
 
                 if M.config.check_modified then
                     -- check if the buffer content has changed, if not prevent modified state (only for "insert" modes)
@@ -149,14 +147,11 @@ function M.setup(opts)
                     end
                 end
             elseif combinations[char] then
-                trigger_char = char
                 timer:stop()
-                timer:start(M.config.timeout, 0, function()
-                    trigger_char = nil
-                end)
-            else
-                trigger_char = nil
+                timer:start(M.config.timeout, 0, function() end)
             end
+
+            last_char = char
         end
     end, ns)
 
