@@ -36,9 +36,9 @@ local unmodified_buf_content = nil
 ---Save the current unmodified buffers content as a string for later comparisons
 ---If the current buffer is modified then the storage variable is set to `nil`
 ---Disable the whole comparison process by setting `check_modified = false`
-function M.save_buf_content_string()
+local function save_buf_content_string()
     if M.config.check_modified then
-        local modified = vim.api.nvim_buf_get_option(0, 'modified')
+        local modified = vim.api.nvim_get_option_value('modified', {})
         if not modified then
             local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
             unmodified_buf_content = table.concat(lines, '\n')
@@ -52,7 +52,7 @@ function M.setup(opts)
     local config = defaults
 
     if opts then
-        config = vim.tbl_deep_extend('force', defaults, opts)
+        config = assert(vim.tbl_deep_extend('force', defaults, opts))
 
         -- check that all mappings are valid
         local mappings = vim.tbl_filter(function(m)
@@ -160,12 +160,13 @@ function M.setup(opts)
         end
     end, ns)
 
-    vim.cmd [[
-        augroup houdini
-            autocmd!
-            autocmd InsertEnter * lua require('houdini').save_buf_content_string()
-        augroup END
-    ]]
+    vim.api.nvim_create_autocmd('InsertEnter', {
+        group = vim.api.nvim_create_augroup('HoudiniCheckModified', {}),
+        pattern = '*',
+        callback = function()
+            save_buf_content_string()
+        end,
+    })
 end
 
 return M
