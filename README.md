@@ -51,6 +51,8 @@ All of these are using the `InsertCharPre` autocommand event to implement their 
 
 ## Installation
 
+> Requires at least Neovim version `0.7.0`
+
 Install with your favorite plugin manager and call the `setup` function
 
 [packer.nvim](https://github.com/wbthomason/packer.nvim)
