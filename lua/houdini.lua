@@ -29,19 +29,19 @@ local defaults = {
     timeout = vim.o.timeoutlen,
     check_modified = true,
     escape_sequences = {
-        ['i']   = '<BS><BS><ESC>', -- insert mode
+        ['i']   = '<BS><BS><ESC>',        -- insert mode
         ['ic']  = '<BS><BS><ESC>',
         ['ix']  = '<BS><BS><ESC>',
-        ['R']   = '<BS><BS><ESC>', -- replace mode
+        ['R']   = '<BS><BS><RIGHT><ESC>', -- replace mode
         ['Rc']  = '<BS><BS><ESC>',
         ['Rx']  = '<BS><BS><ESC>',
-        ['Rv']  = '<BS><BS><ESC>', -- virtual replace mode
+        ['Rv']  = '<BS><BS><RIGHT><ESC>', -- virtual replace mode
         ['Rvc'] = '<BS><BS><ESC>',
         ['Rvx'] = '<BS><BS><ESC>',
-        ['r']   = '<ESC>',               -- the "-- more --" prompt
-        ['rm']  = '<ESC>',               -- the hit-enter prompts
-        ['t']   = '<BS><BS><C-\\><C-n>', -- terminal mode
-        ['c']   = '<BS><BS><C-c>',       -- command line mode
+        ['r']   = '<ESC>',                -- the "-- more --" prompt
+        ['rm']  = '<ESC>',                -- the hit-enter prompts
+        ['t']   = '<BS><BS><C-\\><C-n>',  -- terminal mode
+        ['c']   = '<BS><BS><C-c>',        -- command line mode
 
         -- this is obviously a "hack" and will not work with inputs longer than 100 characters, but it should cover the majority of cases in Ex mode
         ['cv']  = ('<BS>'):rep(100) .. 'vi<CR>'
