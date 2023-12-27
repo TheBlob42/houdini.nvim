@@ -1,6 +1,6 @@
 *houdini.txt*
 
-Escape "everything" with a simple two character mapping & without delay
+Escape almost "everything" with a simple two character mapping without delay
 
 License:	GLP3
 Website:	https://github.com/TheBlob42/houdini.nvim
@@ -12,11 +12,11 @@ If you are using a custom key mapping like `jk` to leave insert, terminal or
 command mode you probably have noticed that there is a slight "delay" after
 typing the first character. This is Neovim waiting for |timeoutlen| to see if
 you type the second character of your mapping or if it should insert the
-character instead.
+actual character instead.
 
-With `houdini` the characters will be inserted into the buffer right away.
+With `houdini` these characters will be inserted into the buffer right away.
 After each character the plugin checks if you have typed on of the configured
-escape sequences within the timeout. If this the case the corresponding
+escape sequences within the timeout. If this the case the corresponding escape
 sequence will be triggered, which by default will delete the inserted
 characters and escape the current mode. This way you will not experience any
 delay while typing.
@@ -24,29 +24,42 @@ delay while typing.
 To check the already typed characters `houdini` uses the builtin
 |vim.on_key()| function.
 
+By default `houdini` works for the following modes (see |mode()|):
+
+- |Insert-mode|
+- |Terminal-mode|
+- |Command-line-mode|
+- |Replace-mode|
+- |Virtual-Replace-mode|
+- |Ex-mode|
+- |more-prompt|
+- |hit-enter-prompt|
+
+Note: See also |houdini-configuration|
+
 ==============================================================================
 INSTALLATION                                            *houdini-installation*
 
-The plugin requires at least Neovim version >= 0.5
+The plugin requires at least Neovim version >= 0.7
 
 Install with your favorite plugin manager and call the `setup` function.
 
-PACKER~
-(https://github.com/wbthomason/packer.nvim)
->
-	use {
-        'theblob42/houdini.nvim',
-        config = function()
-            require('houdini').setup()
-        end
-    }
+LAZY~
+(https://github.com/folke/lazy.nvim)
+>lua
+	{
+		'TheBlob42/houdini.nvim',
+		config = function()
+			require('houdini').setup()
+		end
+	}
 <
 ==============================================================================
 CONFIGURATION                                          *houdini-configuration*
 
 You need to call the `setup` function at least once, which will by default
 initialize `houdini` with its default settings:
->
+>lua
     require('houdini').setup {
         mappings = { 'jk' },
         timeout = vim.o.timeoutlen,
@@ -71,9 +84,9 @@ initialize `houdini` with its default settings:
 <
 By passing your own configuration table to the `setup` function you can
 override these defaults with your own preference:
->
+>lua
 	require('houdini').setup {
-		mappings = { 'fd' }
+		mappings = { 'fd' } -- the authors preferred escape mapping ;-)
 	}
 <
 The `setup` function is idempotent, so you can call it multiple times with
@@ -89,8 +102,10 @@ A list of two character mappings that you would like to use to trigger the
 
 If you just want to "smash" two keys for escaping without having to care about
 the order of them, you simply have to add both combinations to the list:
->
-    mappings = { 'fd', 'df' }
+>lua
+	require('houdini').setup {
+		mappings = { 'fd', 'df' }
+	}
 <
 ------------------------------------------------------------------------------
 TIMEOUT                                               *houdini-config-timeout*
@@ -124,11 +139,11 @@ Remark that not all modes will work with the `houdini` plugin.
 
 You can provide another string sequence or even a Lua function which receives
 both chars as parameters for even more customization:
->
+>lua
 	require('houdini').setup {
 		mappings = { 'jk', 'AA', 'II' },
 		escape_sequences = {
-			i = function(first, second)
+			['i'] = function(first, second)
 				local seq = first..second
 
 				if seq == 'AA' then
@@ -149,14 +164,24 @@ both chars as parameters for even more customization:
 
 				return '<BS><BS><ESC>'
 			end,
+			-- set the sequence of a specific mode to `false`
+			-- in order to completely disable houdini for this mode
+			['c'] = false,
 		},
 	}
 <
-Note: By setting the escape sequence of a mode to `false` you're deactivating
-`houdini` for this mode completely.
 
 ==============================================================================
 TROUBLESHOOTING                                      *houdini-troubleshooting*
+
+MACROS WITH |:normal|~
+
+In case you encounter issues while executing macros via |:normal| you might
+need to update your Neovim version to at least `v0.10.0-dev-1902+g184f84234`
+(20.12.2023):
+https://github.com/TheBlob42/houdini.nvim/issues/7
+
+LIGHTSPEED~
 
 There is a known issue with `lightspeed.nvim` which blocks the first `<BS>`
 after a jump and changing text:
@@ -164,7 +189,7 @@ https://github.com/ggandor/lightspeed.nvim/issues/140
 
 This might conflict with the default escape sequence for insert mode.
 Fortunately there is a simple workaround to mitigate this problem:
->
+>lua
 	vim.cmd('autocmd User LightspeedSxLeave normal a')
 <
 ==============================================================================
