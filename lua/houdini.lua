@@ -8,22 +8,6 @@ local last_char = ''
 
 local ignore_key = vim.api.nvim_replace_termcodes('<Ignore>', true, true, true)
 
--- move the added `<Ignore>` key between the escape sequence chars
--- during macro execution this will prevent triggering an escape
-vim.api.nvim_create_autocmd('RecordingLeave', {
-    group = vim.api.nvim_create_augroup('HoudiniMacroAdaptions', {}),
-    pattern = '*',
-    callback = function()
-        local reg = vim.fn.reg_recording()
-        vim.schedule(function()
-            local reg_content = vim.fn.getreg(reg)
-            if reg_content and type(reg_content) == 'string' then
-                vim.fn.setreg(reg, reg_content:gsub('(.)' .. ignore_key, ignore_key .. '%1'))
-            end
-        end)
-    end
-})
-
 local defaults = {
     mappings = { 'jk' },
     timeout = vim.o.timeoutlen,
@@ -184,6 +168,22 @@ function M.setup(opts)
         callback = function()
             save_buf_content_string()
         end,
+    })
+
+    -- move the added `<Ignore>` key between the escape sequence chars
+    -- during macro execution this will prevent triggering an escape
+    vim.api.nvim_create_autocmd('RecordingLeave', {
+        group = vim.api.nvim_create_augroup('HoudiniMacroAdaptions', {}),
+        pattern = '*',
+        callback = function()
+            local reg = vim.fn.reg_recording()
+            vim.schedule(function()
+                local reg_content = vim.fn.getreg(reg)
+                if reg_content and type(reg_content) == 'string' then
+                    vim.fn.setreg(reg, reg_content:gsub('(.)' .. ignore_key, ignore_key .. '%1'))
+                end
+            end)
+        end
     })
 end
 
