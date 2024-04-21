@@ -1,6 +1,6 @@
 # 🧙 Houdini
 
-Escape insert mode, terminal mode, the "hit-enter-prompt" and more with a simple two character mapping
+Escape insert mode, terminal mode and more with a simple two character mapping
 
 ## Motivation
 
@@ -29,7 +29,6 @@ Compared to other [alternatives](#alternatives) `houdini` does also work for oth
 - command line mode
 - (virtual) replace mode
 - ex mode
-- the `hit-enter-prompt`
 
 ## Installation
 
@@ -97,7 +96,7 @@ This feature will not intervene in the following cases:
 
 ### `escape_sequences`
 
-The escape sequences which are used to escape a certain mode or prompt
+The escape sequences which are used to escape a certain mode
 
 > Check `:help mode()` for a detailed explanation of all the available mode options  
 > See the [default configuration](#configuration) for all cases supported "out of the box" (and how its done)
