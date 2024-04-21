@@ -66,8 +66,6 @@ require('houdini').setup {
         ['Rv']  = '<BS><BS><RIGHT><ESC>',
         ['Rvc'] = '<BS><BS><ESC>',
         ['Rvx'] = '<BS><BS><ESC>',
-        ['r']   = '<ESC>',
-        ['rm']  = '<ESC>',
         ['t']   = '<BS><BS><C-\\><C-n>',
         ['c']   = '<BS><BS><C-c>',
         ['cv']  = ('<BS>'):rep(100) .. 'vi<CR>'
