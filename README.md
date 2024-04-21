@@ -29,7 +29,6 @@ Compared to other [alternatives](#alternatives) `houdini` does also work for oth
 - command line mode
 - (virtual) replace mode
 - ex mode
-- the `more-prompt`
 - the `hit-enter-prompt`
 
 ## Installation
