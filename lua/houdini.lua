@@ -22,7 +22,6 @@ local defaults = {
         ['Rv']  = '<BS><BS><RIGHT><ESC>', -- virtual replace mode
         ['Rvc'] = '<BS><BS><ESC>',
         ['Rvx'] = '<BS><BS><ESC>',
-        ['r']  = '<ESC>',                 -- the hit-enter prompts
         ['t']   = '<BS><BS><C-\\><C-n>',  -- terminal mode
         ['c']   = '<BS><BS><C-c>',        -- command line mode
 
