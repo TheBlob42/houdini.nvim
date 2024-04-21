@@ -119,7 +119,7 @@ function M.setup(opts)
                     seq = seq(last_char, char)
                 end
                 seq = vim.api.nvim_replace_termcodes(seq, true, true, true)
-                vim.api.nvim_feedkeys(seq, mode, true)
+                vim.api.nvim_feedkeys(seq, 't', true)
 
                 if M.config.check_modified then
                     -- check if the buffer content has changed, if not prevent modified state (only for "insert" modes)
