@@ -38,7 +38,7 @@ Note: See also |houdini-configuration|
 ==============================================================================
 INSTALLATION                                            *houdini-installation*
 
-The plugin requires at least Neovim version >= 0.7
+The plugin requires at least Neovim version >= 0.10.0
 
 Install with your favorite plugin manager and call the `setup` function.
 
@@ -82,7 +82,7 @@ By passing your own configuration table to the `setup` function you can
 override these defaults with your own preference:
 >lua
 	require('houdini').setup {
-		mappings = { 'fd' } -- the authors preferred escape mapping ;-)
+		mappings = { 'fd' } -- the author's preferred escape mapping ;-)
 	}
 <
 The `setup` function is idempotent, so you can call it multiple times with

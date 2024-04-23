@@ -103,7 +103,12 @@ function M.setup(opts)
     end
 
     vim.on_key(nil, ns)
-    vim.on_key(function(char)
+    vim.on_key(function(_, char)
+        -- if no char was actually typed we abort to avoid setting the last_char and last_mode variables to "invalid" values
+        if not char or char == '' then
+            return
+        end
+
         local mode = vim.api.nvim_get_mode().mode
         if M.config.escape_sequences[mode] then
             if timer:get_due_in() > 0 and combinations[last_char] and combinations[last_char][char] then
@@ -136,7 +141,7 @@ function M.setup(opts)
                                 vim.api.nvim_buf_call(buf, function()
                                     local pos = vim.api.nvim_win_get_cursor(0)
 
-                                    vim.cmd('silent! u')
+                                    vim.cmd.undo { bang = true }
 
                                     -- save and restore cursor position in case the
                                     -- escape sequence is used for moving the cursor
