@@ -122,6 +122,9 @@ function M.setup(opts)
                 if type(seq) == 'function' then
                     seq = seq(last_char, char)
                 end
+                if not seq then
+                    return
+                end
                 seq = vim.api.nvim_replace_termcodes(seq, true, true, true)
                 vim.api.nvim_feedkeys(seq, 't', true)
 
