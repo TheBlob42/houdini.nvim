@@ -85,10 +85,10 @@ override these defaults with your own preference:
 		mappings = { 'fd' } -- the author's preferred escape mapping ;-)
 	}
 <
-The `setup` function is idempotent, so you can call it multiple times with
-different configurations and it will always overwrite the previous settings
-(no restart required). This might be helpful when testing for example
-different timeout values or custom escape sequences.
+The `setup` function can savely be called multiple times with different
+configurations which will simply overwrite the previous settings (no restart
+required). This might be helpful when testing for example different timeout
+values or custom escape sequences.
 
 ------------------------------------------------------------------------------
 MAPPINGS                                             *houdini-config-mappings*
