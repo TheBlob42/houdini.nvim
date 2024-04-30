@@ -29,9 +29,16 @@ By default `houdini` works for the following modes (see |mode()|):
 - |Insert-mode|
 - |Terminal-mode|
 - |Command-line-mode|
+- |Operator-pending-mode|
+- |Visual-mode|
+- |Select-mode|
 - |Replace-mode|
 - |Virtual-Replace-mode|
 - |Ex-mode|
+
+Some modes might require additional configuration depending on the used escape
+sequence. Especially modes where certain key presses might cause deletions
+and/or switch to another mode like |Operator-pending-mode| and |Visual-mode|.
 
 Note: See also |houdini-configuration|
 
@@ -63,18 +70,31 @@ initialize `houdini` with its default settings:
         timeout = vim.o.timeoutlen,
         check_modified = true,
 		escape_sequences = {
-			['i']   = '<BS><BS><ESC>',
-			['ic']  = '<BS><BS><ESC>',
-			['ix']  = '<BS><BS><ESC>',
-			['R']   = '<BS><BS><RIGHT><ESC>',
-			['Rc']  = '<BS><BS><ESC>',
-			['Rx']  = '<BS><BS><ESC>',
-			['Rv']  = '<BS><BS><RIGHT><ESC>',
-			['Rvc'] = '<BS><BS><ESC>',
-			['Rvx'] = '<BS><BS><ESC>',
-			['t']   = '<BS><BS><C-\\><C-n>',
-			['c']   = '<BS><BS><C-c>',
-			['cv']  = ('<BS>'):rep(100) .. 'vi<CR>'
+			['i']    = '<BS><BS><ESC>',
+			['ic']   = '<BS><BS><ESC>',
+			['ix']   = '<BS><BS><ESC>',
+			['R']    = '<BS><BS><RIGHT><ESC>',
+			['Rc']   = '<BS><BS><ESC>',
+			['Rx']   = '<BS><BS><ESC>',
+			['Rv']   = '<BS><BS><RIGHT><ESC>',
+			['Rvc']  = '<BS><BS><ESC>',
+			['Rvx']  = '<BS><BS><ESC>',
+			['t']    = '<BS><BS><C-\\><C-n>',
+			['c']    = '<BS><BS><C-c>',
+			['cv']   = ('<BS>'):rep(100) .. 'vi<CR>'
+			['v']    = escape_and_undo,
+			['vs']   = escape_and_undo,
+			['V']    = escape_and_undo,
+			['Vs']   = escape_and_undo,
+			['']   = escape_and_undo,
+			['s']  = escape_and_undo,
+			['no']   = escape_and_undo,
+			['nov']  = escape_and_undo,
+			['noV']  = escape_and_undo,
+			['no'] = escape_and_undo,
+			['s']  = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
+			['S']  = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
+			[''] = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
 		},
     }
 <
@@ -133,14 +153,27 @@ These are the escape sequences used to exit a certain mode.
 See |mode()| for a complete list of all the available modes.
 Remark that not all modes will work with the `houdini` plugin.
 
+The following options are allowed as escape sequences:
+
+- A `string` key mapping that should be executed
+- A Lua function that is called when a mapping for the specific mode was
+  triggered. Returns a string representing the key sequence that should be
+  executed. Receives the following arguments:
+	- char_one: (string) first char of the mapping
+	- char_two: (string) second char of the mapping
+	- pos: (table) last cursor position
+	- tick: (number) last value of |changedtick|
+- Set the value to `false` in order to disable `houdini` for this specific
+  mode (`nil` does NOT work)
+
 You can provide another string sequence or even a Lua function which receives
 both chars as parameters for even more customization:
 >lua
 	require('houdini').setup {
 		mappings = { 'jk', 'AA', 'II' },
 		escape_sequences = {
-			['i'] = function(first, second)
-				local seq = first..second
+			['i'] = function(char_one, char_two, pos, tick)
+				local seq = char_one..char_two
 
 				if seq == 'AA' then
 					-- jump to the end of the line in insert mode
@@ -166,6 +199,19 @@ both chars as parameters for even more customization:
 		},
 	}
 <
+------------------------------------------------------------------------------
+ESCAPE_AND_UNDO              *houdini-config-escape-sequences-escape-and-undo*
+
+The `escape_and_undo` function is by default used to escape |Visual-mode| and
+|Operator-pending-mode|. It does so by using the `<ESC>` keycode for escaping
+the current mode and afterwards checking the |b:changedtick| buffer variable
+for changes in order to undo them if necessary. It then also restores the
+former cursor position.
+
+It should cover most cases for those modes and was tested with a variety of
+mappings. However if it does not work with your custom mapping you would need
+to adopt the corresponding escape sequence(s) accordingly. Check the functions
+source code for some inspiration on what is possible.
 
 ==============================================================================
 TROUBLESHOOTING                                      *houdini-troubleshooting*

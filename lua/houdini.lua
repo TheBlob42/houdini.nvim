@@ -5,31 +5,87 @@ local timer = vim.loop.new_timer()
 
 local combinations = {}
 local last_char = ''
+local last_mode = ''
+local last_tick = 0
+local last_cursor_pos = { 0, 0 }
 
 local ignore_key = vim.api.nvim_replace_termcodes('<Ignore>', true, true, true)
 
+---@alias HoudiniEscapeFunction fun(char_one: string, char_two: string, pos: table<number,number>, tick: number): string
+
+---@class HoudiniConfiguration
+---@field mappings table<string>? A list of mappings that should trigger the escape sequences
+---@field timeout number? The time in milliseconds after which the escape sequence should be triggered
+---@field check_modified boolean? Whether the buffer content should be checked for changes AFTER triggering the escape sequence to suppress the modified state in case no text was actually modified
+---@field escape_sequences table<string,string|false|HoudiniEscapeFunction>? A table of escape sequences for different modes
+
+---Escape modes that might switch to another mode in the process and undo changes that have been done by the key presses of the escape sequence
+---Also restores the cursor position after the escape sequence (`<ESC>`) has been typed
+---@type HoudiniEscapeFunction
+---@diagnostic disable-next-line: duplicate-doc-param
+---@param _ string Char one (ignore)
+---@diagnostic disable-next-line: duplicate-doc-param
+---@param _ string Char two (ignore)
+---@param pos table<number,number> The last cursor position
+---@param tick number The last value of the `changedtick` variable
+---@return string esc_sequence The escape sequence to be used
+function M.escape_and_undo(_, _, pos, tick)
+    -- depending on the situation the changedtick value might be updated AFTER the escape sequence has been typed
+    -- therefore we're using `vim.schedule` to check again for additional changes
+    vim.schedule(function()
+        if vim.b.changedtick > tick then
+            vim.cmd.undo { bang = true }
+        end
+        vim.api.nvim_win_set_cursor(0, pos)
+    end)
+
+    if vim.b.changedtick > tick then
+        vim.cmd.undo { bang = true }
+        tick = vim.b.changedtick
+    end
+
+    return '<ESC>'
+end
+
+---@type HoudiniConfiguration
 local defaults = {
     mappings = { 'jk' },
     timeout = vim.o.timeoutlen,
     check_modified = true,
     escape_sequences = {
-        ['i']   = '<BS><BS><ESC>',        -- insert mode
-        ['ic']  = '<BS><BS><ESC>',
-        ['ix']  = '<BS><BS><ESC>',
-        ['R']   = '<BS><BS><RIGHT><ESC>', -- replace mode
-        ['Rc']  = '<BS><BS><ESC>',
-        ['Rx']  = '<BS><BS><ESC>',
-        ['Rv']  = '<BS><BS><RIGHT><ESC>', -- virtual replace mode
-        ['Rvc'] = '<BS><BS><ESC>',
-        ['Rvx'] = '<BS><BS><ESC>',
-        ['t']   = '<BS><BS><C-\\><C-n>',  -- terminal mode
-        ['c']   = '<BS><BS><C-c>',        -- command line mode
+        ['i']    = '<BS><BS><ESC>',        -- insert mode
+        ['ic']   = '<BS><BS><ESC>',
+        ['ix']   = '<BS><BS><ESC>',
+        ['R']    = '<BS><BS><RIGHT><ESC>', -- replace mode
+        ['Rc']   = '<BS><BS><ESC>',
+        ['Rx']   = '<BS><BS><ESC>',
+        ['Rv']   = '<BS><BS><RIGHT><ESC>', -- virtual replace mode
+        ['Rvc']  = '<BS><BS><ESC>',
+        ['Rvx']  = '<BS><BS><ESC>',
+        ['v']    = M.escape_and_undo,      -- visual mode
+        ['vs']   = M.escape_and_undo,
+        ['V']    = M.escape_and_undo,
+        ['Vs']   = M.escape_and_undo,
+        ['']   = M.escape_and_undo,
+        ['s']  = M.escape_and_undo,
+        ['no']   = M.escape_and_undo,      -- operator mode
+        ['nov']  = M.escape_and_undo,
+        ['noV']  = M.escape_and_undo,
+        ['no'] = M.escape_and_undo,
+        -- select mode
+        ['s']  = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
+        ['S']  = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
+        [''] = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
+
+        ['t'] = '<BS><BS><C-\\><C-n>', -- terminal mode
+        ['c'] = '<BS><BS><C-c>',       -- command line mode
 
         -- this is obviously a "hack" and will not work with inputs longer than 100 characters, but it should cover the majority of cases in Ex mode
         ['cv']  = ('<BS>'):rep(100) .. 'vi<CR>'
     },
 }
 
+---@type HoudiniConfiguration
 M.config = defaults
 
 local unmodified_buf_content = nil
@@ -48,6 +104,10 @@ local function save_buf_content_string()
     end
 end
 
+---Setup the Houdini plugin with the given options
+---You need to call this function at least once to be able to use the plugin
+---Further calls will overwrite the previous configuration without needing a restart
+---@param opts HoudiniConfiguration
 function M.setup(opts)
     local config = defaults
 
@@ -110,7 +170,9 @@ function M.setup(opts)
         end
 
         local mode = vim.api.nvim_get_mode().mode
-        if M.config.escape_sequences[mode] then
+
+        -- check the previous mode for escape sequences for cases where the mode was switched as part of the sequence
+        if M.config.escape_sequences[mode] or M.config.escape_sequences[last_mode] then
             if timer:get_due_in() > 0 and combinations[last_char] and combinations[last_char][char] then
                 -- if the timer's due time is equal to the configured timeout its a sign that the escape sequence
                 -- was typed "automatically" (for example by `i_CTRL-A` or `i_CTRL-@`) and we should skip it (except its a macro)
@@ -118,9 +180,9 @@ function M.setup(opts)
                     return
                 end
 
-                local seq = M.config.escape_sequences[mode]
+                local seq = M.config.escape_sequences[last_mode] or M.config.escape_sequences[mode]
                 if type(seq) == 'function' then
-                    seq = seq(last_char, char)
+                    seq = seq(last_char, char, last_cursor_pos, last_tick)
                 end
                 if not seq then
                     return
@@ -165,6 +227,9 @@ function M.setup(opts)
             end
 
             last_char = char
+            last_mode = mode
+            last_tick = vim.b.changedtick
+            last_cursor_pos = vim.api.nvim_win_get_cursor(0)
         end
     end, ns)
 
