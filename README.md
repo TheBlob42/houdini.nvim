@@ -27,6 +27,9 @@ Compared to other [alternatives](#alternatives) `houdini` does also work for oth
 - insert mode
 - terminal mode
 - command line mode
+- operator mode
+- visual mode
+- select mode
 - (virtual) replace mode
 - ex mode
 
@@ -57,18 +60,30 @@ require('houdini').setup {
     timeout = vim.o.timeoutlen,
     check_modified = true,
     escape_sequences = {
-        ['i']   = '<BS><BS><ESC>',
-        ['ic']  = '<BS><BS><ESC>',
-        ['ix']  = '<BS><BS><ESC>',
-        ['R']   = '<BS><BS><RIGHT><ESC>',
-        ['Rc']  = '<BS><BS><ESC>',
-        ['Rx']  = '<BS><BS><ESC>',
-        ['Rv']  = '<BS><BS><RIGHT><ESC>',
-        ['Rvc'] = '<BS><BS><ESC>',
-        ['Rvx'] = '<BS><BS><ESC>',
-        ['t']   = '<BS><BS><C-\\><C-n>',
-        ['c']   = '<BS><BS><C-c>',
-        ['cv']  = ('<BS>'):rep(100) .. 'vi<CR>'
+        ['i']    = '<BS><BS><ESC>',
+        ['ic']   = '<BS><BS><ESC>',
+        ['ix']   = '<BS><BS><ESC>',
+        ['R']    = '<BS><BS><RIGHT><ESC>',
+        ['Rc']   = '<BS><BS><ESC>',
+        ['Rx']   = '<BS><BS><ESC>',
+        ['Rv']   = '<BS><BS><RIGHT><ESC>',
+        ['Rvc']  = '<BS><BS><ESC>',
+        ['Rvx']  = '<BS><BS><ESC>',
+        ['v']    = escape_and_undo,
+        ['vs']   = escape_and_undo,
+        ['V']    = escape_and_undo,
+        ['Vs']   = escape_and_undo,
+        ['']   = escape_and_undo,
+        ['s']  = escape_and_undo,
+        ['no']   = escape_and_undo,
+        ['nov']  = escape_and_undo,
+        ['noV']  = escape_and_undo,
+        ['no'] = escape_and_undo,
+        ['s']  = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
+        ['S']  = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
+        [''] = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
+        ['t'] = '<BS><BS><C-\\><C-n>',
+        ['c'] = '<BS><BS><C-c>',
     },
 }
 ```
@@ -105,8 +120,8 @@ You can provide your own sequence as a string or even use a function for more cu
 require('houdini').setup {
     mappings = { 'jk', 'AA', 'II' },
     escape_sequences = {
-        ['i'] = function(first, second)
-            local seq = first..second
+        ['i'] = function(char_one, char_two, pos, tick)
+            local seq = char_one..char_two
 
             if seq == 'AA' then
                 -- jump to the end of the line in insert mode
@@ -132,6 +147,8 @@ require('houdini').setup {
     },
 }
 ```
+
+For some more inspiration about custom functions being used for escape sequences also check out the `M.escape_and_undo` function which is used for visual and operator mode by default. It show an example usage of the `pos` and `tick` parameters that are passed to any escape function. See also the corresponding help text for some additional information (`:h houdini-config-escape-sequences-escape-and-undo`)
 
 ## Alternatives
 
