@@ -73,20 +73,23 @@ require('houdini').setup {
         ['vs']   = escape_and_undo,
         ['V']    = escape_and_undo,
         ['Vs']   = escape_and_undo,
-        ['']   = escape_and_undo,
-        ['s']  = escape_and_undo,
+        ['^V']   = escape_and_undo,
+        ['^Vs']  = escape_and_undo,
         ['no']   = escape_and_undo,
         ['nov']  = escape_and_undo,
         ['noV']  = escape_and_undo,
-        ['no'] = escape_and_undo,
+        ['no^V'] = escape_and_undo,
         ['s']  = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
         ['S']  = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
-        [''] = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
+        ['^S'] = '<BS><BS><ESC>:u! | call histdel("cmd", -1) | echo ""<CR>',
         ['t'] = '<BS><BS><C-\\><C-n>',
         ['c'] = '<BS><BS><C-c>',
     },
 }
 ```
+
+> Since control characters can not be rendered correctly we depict them here with a `^` prefix  
+> Check `lua/houdini.lua` for the accurate values that are being used
 
 ### `mappings`
 
