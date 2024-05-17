@@ -35,7 +35,7 @@ Compared to other [alternatives](#alternatives) `houdini` does also work for oth
 
 ## Installation
 
-> Requires at least Neovim version `0.10.0` (current nightly & this [PR](https://github.com/neovim/neovim/pull/28098) needs to be included)
+> Requires at least Neovim version `0.10.0`
 
 Install with your favorite plugin manager and call the `setup` function
 
