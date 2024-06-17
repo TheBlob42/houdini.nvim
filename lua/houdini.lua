@@ -8,6 +8,7 @@ local last_char = ''
 local last_mode = ''
 local last_tick = 0
 local last_cursor_pos = { 0, 0 }
+local excluded_filetypes_set = {}
 
 local ignore_key = vim.api.nvim_replace_termcodes('<Ignore>', true, true, true)
 
@@ -52,6 +53,7 @@ local defaults = {
     mappings = { 'jk' },
     timeout = vim.o.timeoutlen,
     check_modified = true,
+    excluded_filetypes = {},
     escape_sequences = {
         ['i']    = '<BS><BS><ESC>',        -- insert mode
         ['ic']   = '<BS><BS><ESC>',
@@ -114,6 +116,10 @@ function M.setup(opts)
     if opts then
         config = assert(vim.tbl_deep_extend('force', defaults, opts))
 
+        for _, excluded_filetype in ipairs(config.excluded_filetypes)  do
+            excluded_filetypes_set[excluded_filetype] = true
+        end
+
         -- check that all mappings are valid
         local mappings = vim.tbl_filter(function(m)
             local valid = #m == 2
@@ -167,6 +173,10 @@ function M.setup(opts)
         -- if no char was actually typed we abort to avoid setting the last_char and last_mode variables to "invalid" values
         if not char or char == '' then
             return
+        end
+
+        if excluded_filetypes_set[vim.bo.filetype] then
+          return
         end
 
         local mode = vim.api.nvim_get_mode().mode

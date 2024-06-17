@@ -59,6 +59,7 @@ require('houdini').setup {
     mappings = { 'jk' },
     timeout = vim.o.timeoutlen,
     check_modified = true,
+    excluded_filetypes = {},
     escape_sequences = {
         ['i']    = '<BS><BS><ESC>',
         ['ic']   = '<BS><BS><ESC>',

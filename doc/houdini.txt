@@ -69,6 +69,7 @@ initialize `houdini` with its default settings:
         mappings = { 'jk' },
         timeout = vim.o.timeoutlen,
         check_modified = true,
+        excluded_filetypes = {},
 		escape_sequences = {
 			['i']    = '<BS><BS><ESC>',
 			['ic']   = '<BS><BS><ESC>',
@@ -144,6 +145,12 @@ This feature will not do anything in the following cases:
 - the buffer was |modified| already before entering insert mode
 - you changed some text while entering insert mode using for example |S|, |C|
   or |o|
+
+------------------------------------------------------------------------------
+excluded_filetypes                                *houdini-excluded-filetypes*
+
+List of filetypes where houdini is not doing anything.
+Defaults to {} (no filetypes excluded).
 
 ------------------------------------------------------------------------------
 ESCAPE SEQUENCES                             *houdini-config-escape-sequences*
