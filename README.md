@@ -111,6 +111,10 @@ This feature will not intervene in the following cases:
 - the buffer was `modified` already before entering insert mode
 - you changed some text while entering insert mode using for example `S`, `C` or `o`
 
+### `excluded_filetypes`
+
+A list of filetypes where `houdini` is not active
+
 ### `escape_sequences`
 
 The escape sequences which are used to escape a certain mode

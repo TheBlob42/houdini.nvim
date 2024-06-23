@@ -176,7 +176,7 @@ function M.setup(opts)
         end
 
         if excluded_filetypes_set[vim.bo.filetype] then
-          return
+            return
         end
 
         local mode = vim.api.nvim_get_mode().mode

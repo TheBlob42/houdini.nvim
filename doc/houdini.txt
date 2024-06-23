@@ -149,7 +149,7 @@ This feature will not do anything in the following cases:
 ------------------------------------------------------------------------------
 excluded_filetypes                                *houdini-excluded-filetypes*
 
-List of filetypes where houdini is not doing anything.
+List of filetypes where `houdini` is not doing anything.
 Defaults to {} (no filetypes excluded).
 
 ------------------------------------------------------------------------------
