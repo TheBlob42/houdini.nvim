@@ -47,7 +47,7 @@ INSTALLATION                                            *houdini-installation*
 
 The plugin requires at least Neovim version >= 0.10.0
 
-Install with your favorite plugin manager and call the `setup` function.
+Install it with your favorite plugin manager and call the `setup` function.
 
 LAZY~
 (https://github.com/folke/lazy.nvim)

@@ -14,7 +14,7 @@ But behold as this comes with a slight input delay
 
 ![typing with delay](./assets/with_delay.gif)
 
-> Neovim is waiting for `timeoutlen` if you type the second key or if it should actually insert the character
+> Neovim is waiting for `timeoutlen` if you type the second key of your keymapping or if it should actually insert the character instead
 
 `houdini` removes this delay
 
@@ -22,7 +22,7 @@ But behold as this comes with a slight input delay
 
 ### But why stop in insert mode?
 
-Compared to other [alternatives](#alternatives) `houdini` does also work for other modes and cases that you might want to escape easily using the same mapping and without any visible typing delay
+Compared to other [alternatives](#alternatives) `houdini` does also work for other modes that you might want to escape easily using the same mapping and without any visible typing delay
 
 - insert mode
 - terminal mode
@@ -37,7 +37,7 @@ Compared to other [alternatives](#alternatives) `houdini` does also work for oth
 
 > Requires at least Neovim version `0.10.0`
 
-Install with your favorite plugin manager and call the `setup` function
+Install it with your favorite plugin manager and call the `setup` function
 
 [lazy.nvim](https://github.com/folke/lazy.nvim)
 ```lua
@@ -156,14 +156,13 @@ require('houdini').setup {
 }
 ```
 
-For some more inspiration about custom functions being used for escape sequences also check out the `M.escape_and_undo` function which is used for visual and operator mode by default. It show an example usage of the `pos` and `tick` parameters that are passed to any escape function. See also the corresponding help text for some additional information (`:h houdini-config-escape-sequences-escape-and-undo`)
+For some more inspiration about custom functions being used for escape sequences also check out the `M.escape_and_undo` function which is used for the visual and operator modes by default. It shows an example usage of the `pos` and `tick` parameters that are passed to any escape function. See also the corresponding help text for some additional information (`:h houdini-config-escape-sequences-escape-and-undo`)
 
 ## Alternatives
 
 There are quite a few other plugins with a very similar scope:
 
 - [better-escape.vim](https://github.com/jdhao/better-escape.vim)
-- [better-escape.nvim](https://github.com/max397574/better-escape.nvim)
 - [vim-easyescape](https://github.com/zhou13/vim-easyescape)
 
 They all use the `InserCharPre` autocommand event to implement their logic which limits their functionality to insert mode only. For `houdini` we add a custom function via `vim.on_key` that handles everything. This brings several advantages:
@@ -171,6 +170,8 @@ They all use the `InserCharPre` autocommand event to implement their logic which
 - works in (almost) all [modes](#but-why-stop-in-insert-mode%3F)
 - [escape sequence functions](#escape-sequences) allow a lot of customization
 - works "flawless" in macros
+
+> There is also [better-escape.nvim](https://github.com/max397574/better-escape.nvim) which just had a recent [rewrite](https://github.com/max397574/better-escape.nvim/issues/61) that switched to `vim.on_key` as well, so the functionality should now be a lot closer with `houdini` (I have not checked the exact details)
 
 ## Troubleshooting
 
