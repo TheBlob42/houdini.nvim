@@ -43,9 +43,7 @@ Install it with your favorite plugin manager and call the `setup` function
 ```lua
 {
     'TheBlob42/houdini.nvim',
-    config = function()
-        require('houdini').setup()
-    end
+    opts = {},
 }
 ```
 
